@@ -1,0 +1,27 @@
+<launch>	
+	<!-- camera -->
+	<include file="$(find realsense2_camera)/launch/rs_multiple_devices.launch"/>
+	
+	<!-- visp auto tracker -->
+	<include file="$(find visp_auto_tracker)/launch/track.launch"/>
+
+	<!-- robot controller -->
+	<arg name="port_robot" default="/dev/serial/by-id/usb-T-frog_project_T-frog_Driver-if00" />
+	<arg name="robot_param" default="$(find laputa_navigation)/ypspur_param/yp-spur.param" />
+	<node pkg="ypspur_ros" type="ypspur_ros" name="ypspur_ros" respawn="true">
+	    <param name="port" value="$(arg port_robot)" />
+	    <param name="param_file" value="$(arg robot_param)" />
+	    <param name="compatible" value="1" />
+            <param name="base_link_id" value="/base_footprint" />
+	</node>
+
+	<!-- laputa_description -->
+	<arg name="model" default="$(find laputa_description)/xacro/laputa3.urdf.xacro"/>
+	<param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+	<node name="joint_state_publisher" 
+	        pkg="joint_state_publisher" 
+        	type="joint_state_publisher" />
+	<node name="robot_state_publisher" 
+	        pkg="robot_state_publisher" 
+	        type="state_publisher" />
+</launch>
